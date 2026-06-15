@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>HOTO 저울 실시간 무게</title>
+<style>
+  body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #111; color: #eee; }
+  #weight { font-size: 6rem; font-weight: bold; }
+  #label { color: #888; }
+  #status { margin-top: 1rem; color: #888; }
+  #state { margin-top: 1rem; padding: 0.5rem 1.5rem; border-radius: 2rem; font-weight: bold; }
+  .stable { color: #4caf50; }
+  .unstable { color: #ffb300; }
+  .state-idle { background: #6b1f1f; color: #ff8a80; }
+  .state-ready { background: #1f3a6b; color: #82b1ff; }
+</style>
+</head>
+<body>
+  <div id="label">현재 무게</div>
+  <div id="weight">--</div>
+  <div id="state">--</div>
+  <div id="status">연결 중...</div>
+
+<script>
+  const weightEl = document.getElementById("weight");
+  const labelEl = document.getElementById("label");
+  const stateEl = document.getElementById("state");
+  const statusEl = document.getElementById("status");
+
+  function connect() {
+    const ws = new WebSocket("ws://localhost:8765");
+
+    ws.onopen = () => statusEl.textContent = "연결됨, 저울 응답 대기 중...";
+    ws.onclose = () => {
+      statusEl.textContent = "연결 끊김, 재연결 중...";
+      setTimeout(connect, 1000);
+    };
+    ws.onerror = () => ws.close();
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      const isReady = data.state === "READY";
+      const displayWeight = isReady && data.refill !== null && data.refill !== undefined
+        ? data.refill
+        : data.weight;
+
+      labelEl.textContent = isReady ? "리필량" : "현재 무게";
+
+      if (displayWeight !== null && displayWeight !== undefined) {
+        weightEl.textContent = displayWeight.toFixed(1) + " g";
+        weightEl.className = data.stabilized ? "stable" : "unstable";
+      }
+
+      stateEl.textContent = isReady ? "리필 가능 (파랑)" : "준비 중 (빨강)";
+      stateEl.className = isReady ? "state-ready" : "state-idle";
+
+      statusEl.textContent = data.connected
+        ? (data.stabilized ? "안정됨" : "측정 중...")
+        : "저울 연결 안됨";
+    };
+  }
+
+  connect();
+</script>
+</body>
+</html>
