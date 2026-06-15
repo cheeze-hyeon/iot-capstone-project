@@ -73,15 +73,23 @@
 
 ---
 
-## 구현 파일 (`hoto_driver/`)
+## 폴더 구조
+
+```
+hoto_driver/
+├── server/   # 파이썬 서버 + BLE 드라이버
+├── web/      # 브라우저 프론트엔드
+├── firmware/ # 아두이노 펌웨어
+└── docs/     # 문서
+```
 
 | 파일 | 역할 |
 |---|---|
-| `hoto.py` | 핵심 드라이버. BLE 연결, 핸드셰이크, 무게 복호화를 담당하는 `HotoScale` 클래스 (n0n3m4/hoto_kitchen_ha 에서 가져옴) |
-| `const.py` | UUID, HKDF info 등 상수 |
-| `server.py` | 저울에 연결 → 무게 변화를 `ws://localhost:8765`로 실시간 브로드캐스트하는 WebSocket 서버 |
-| `viewer.html` | 브라우저에서 WebSocket으로 받은 무게를 큰 글씨로 보여주는 테스트 페이지 |
-| `run.py` | (1회성 테스트용) 저울에 연결해서 콘솔에 무게를 출력하는 스크립트 |
+| `server/hoto.py` | 핵심 드라이버. BLE 연결, 핸드셰이크, 무게 복호화를 담당하는 `HotoScale` 클래스 (n0n3m4/hoto_kitchen_ha 에서 가져옴) |
+| `server/const.py` | UUID, HKDF info 등 상수 |
+| `server/server.py` | 저울에 연결 → 무게 변화를 `ws://localhost:8765`로 실시간 브로드캐스트하는 WebSocket 서버 |
+| `web/viewer.html` | 브라우저에서 WebSocket으로 받은 무게를 큰 글씨로 보여주는 테스트 페이지 |
+| `server/run.py` | (1회성 테스트용) 저울에 연결해서 콘솔에 무게를 출력하는 스크립트 |
 
 ### 사용한 기기별 비밀값
 - MAC: `EC:4D:3E:DB:EA:F3`
@@ -89,11 +97,11 @@
 
 ### 실행 방법
 ```bash
-cd hoto_driver
+cd hoto_driver/server
 python3 -u server.py
 ```
 - 저울을 깨우면(전원 on / 무게 변화) 자동으로 BLE 연결 + 로그인 + 무게 스트리밍 시작.
-- `viewer.html`을 브라우저로 열면 실시간 무게 표시.
+- `web/viewer.html`을 브라우저로 열면 실시간 무게 표시.
 - 연결되면 `idle_timeout=None` 설정으로 인해 계속 연결 유지됨 (자동으로 끊지 않음).
 
 ---
@@ -106,7 +114,7 @@ python3 -u server.py
 
 1. **서버 실행**
    ```bash
-   cd /Users/cz/Workspace/iot/hoto_driver
+   cd /Users/cz/Workspace/iot/hoto_driver/server
    python3 -u server.py &
    ```
    (백그라운드로 띄우려면 끝에 `&`, 로그 보려면 `> /tmp/hoto_server.log 2>&1 &`)
@@ -118,15 +126,15 @@ python3 -u server.py
    - 한 번에 안 잡히면 서버를 띄운 직후 저울을 한두 번 더 켰다 끄거나 물건을 올렸다 내리면 됨.
 
 3. **브라우저에서 확인**
-   - `viewer.html`을 열면 `ws://localhost:8765`에 자동 연결되고, 끊겨도 1초마다 재연결을 시도함.
+   - `web/viewer.html`을 열면 `ws://localhost:8765`에 자동 연결되고, 끊겨도 1초마다 재연결을 시도함.
 
-> 참고: MAC(`EC:4D:3E:DB:EA:F3`)과 token(`257f0168308a7c6002f2f6bc`)은 `server.py` 안에
+> 참고: MAC(`EC:4D:3E:DB:EA:F3`)과 token(`257f0168308a7c6002f2f6bc`)은 `server/server.py` 안에
 > 하드코딩되어 있어서 별도 로그인/인증 절차는 필요 없음. (단, Mi Home 앱에서 기기를 삭제하고
 > 다시 페어링하면 token이 바뀌므로 다시 추출해야 함)
 
 ---
 
 ## 다음 단계 (미완료)
-1. `server.py`의 WebSocket 메시지를 "알록 POS" 웹앱에서 구독
+1. `server/server.py`의 WebSocket 메시지를 "알록 POS" 웹앱에서 구독
 2. 받은 무게(g) 기준으로 리필 가격 자동 계산 로직 추가
 3. (선택) 저울이 광고 안 할 때를 대비한 재연결/안정성 처리, idle timeout 설정 등

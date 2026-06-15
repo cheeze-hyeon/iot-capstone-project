@@ -24,12 +24,14 @@
 
 | 파일 | 역할 |
 |---|---|
-| `server.py` | 메인 서버: BLE 스캐너/저울 드라이버 + 아두이노 시리얼 + WebSocket 서버 |
-| `hoto.py` | HOTO 저울 BLE 프로토콜 구현 (핸드셰이크, 무게 파싱, 복호화) |
-| `refill_station_rfid/refill_station_rfid.ino` | 아두이노 펌웨어 |
-| `pos.html` | 키오스크 프론트엔드 (제품 선택~결제~완료 화면) |
-| `viewer.html` | 단순 디버그용 뷰어 (저울 무게/상태 표시) |
-| `test_client.py` | WebSocket 메시지 확인용 디버그 클라이언트 |
+| `server/server.py` | 메인 서버: BLE 스캐너/저울 드라이버 + 아두이노 시리얼 + WebSocket 서버 |
+| `server/hoto.py` | HOTO 저울 BLE 프로토콜 구현 (핸드셰이크, 무게 파싱, 복호화) |
+| `server/const.py` | UUID, HKDF info 등 상수 (`hoto.py` 의존성) |
+| `server/run.py` | 저울 단독 연결 테스트 스크립트 |
+| `server/test_client.py` | WebSocket 메시지 확인용 디버그 클라이언트 |
+| `firmware/refill_station_rfid/refill_station_rfid.ino` | 아두이노 펌웨어 |
+| `web/pos.html` | 키오스크 프론트엔드 (제품 선택~결제~완료 화면) |
+| `web/viewer.html` | 단순 디버그용 뷰어 (저울 무게/상태 표시) |
 
 ## 아두이노 핀맵
 
